@@ -1,0 +1,222 @@
+local function createModernNotificationSystem()
+    local TweenService = game:GetService("TweenService")
+    local Debris = game:GetService("Debris")
+    local Players = game:GetService("Players")
+    
+    local player = Players.LocalPlayer
+    local playerGui = player:WaitForChild("PlayerGui")
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "SystemNotifications"
+    screenGui.ResetOnSpawn = false
+    screenGui.DisplayOrder = 2000
+    screenGui.IgnoreGuiInset = true
+    screenGui.Parent = playerGui
+    
+    local container = Instance.new("Frame")
+    container.Name = "NotificationContainer"
+    container.Size = UDim2.new(0, 260, 0.8, 0)
+    container.Position = UDim2.new(1, -270, 0, 50)
+    container.BackgroundTransparency = 1
+    container.Parent = screenGui
+    
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    listLayout.Padding = UDim.new(0, 10)
+    listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+    listLayout.Parent = container
+    
+    local function spawnNotification(title, message, delayTime, colorAccent)
+        local card = Instance.new("Frame")
+        card.Name = "Card"
+        card.Size = UDim2.new(1, 0, 0, 0)
+        card.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        card.BackgroundTransparency = 0.2
+        card.BorderSizePixel = 0
+        card.ClipsDescendants = true
+        card.Parent = container
+        
+        local cardCorner = Instance.new("UICorner")
+        cardCorner.CornerRadius = UDim.new(0, 6)
+        cardCorner.Parent = card
+        
+        local stroke = Instance.new("UIStroke")
+        stroke.Color = Color3.fromRGB(60, 60, 60)
+        stroke.Thickness = 1
+        stroke.Transparency = 0.6
+        stroke.Parent = card
+        
+        local contentFrame = Instance.new("Frame")
+        contentFrame.Size = UDim2.new(1, 0, 1, 0)
+        contentFrame.BackgroundTransparency = 1
+        contentFrame.ZIndex = 5
+        contentFrame.Parent = card
+        
+        local accentBar = Instance.new("Frame")
+        accentBar.Size = UDim2.new(0, 3, 0, 30)
+        accentBar.Position = UDim2.new(0, 10, 0.5, 0)
+        accentBar.AnchorPoint = Vector2.new(0, 0.5)
+        accentBar.BackgroundColor3 = colorAccent
+        accentBar.BorderSizePixel = 0
+        accentBar.Parent = contentFrame
+        
+        local accentCorner = Instance.new("UICorner")
+        accentCorner.CornerRadius = UDim.new(1, 0)
+        accentCorner.Parent = accentBar
+        
+        local accentGlow = Instance.new("UIStroke")
+        accentGlow.Thickness = 2
+        accentGlow.Color = colorAccent
+        accentGlow.Transparency = 0.5
+        accentGlow.Parent = accentBar
+        
+        local titleLabel = Instance.new("TextLabel")
+        titleLabel.Size = UDim2.new(1, -30, 0, 18)
+        titleLabel.Position = UDim2.new(0, 22, 0, 10)
+        titleLabel.BackgroundTransparency = 1
+        titleLabel.Text = title:upper()
+        titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        titleLabel.Font = Enum.Font.GothamBold
+        titleLabel.TextSize = 13
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        titleLabel.Parent = contentFrame
+        
+        local msgLabel = Instance.new("TextLabel")
+        msgLabel.Size = UDim2.new(1, -30, 0, 25)
+        msgLabel.Position = UDim2.new(0, 22, 0, 26)
+        msgLabel.BackgroundTransparency = 1
+        msgLabel.Text = message
+        msgLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+        msgLabel.Font = Enum.Font.Gotham
+        msgLabel.TextSize = 11
+        msgLabel.TextXAlignment = Enum.TextXAlignment.Left
+        msgLabel.TextWrapped = true
+        msgLabel.Parent = contentFrame
+        
+        local timerBar = Instance.new("Frame")
+        timerBar.Size = UDim2.new(0, 0, 0, 2)
+        timerBar.Position = UDim2.new(0, 0, 1, -2)
+        timerBar.BackgroundColor3 = colorAccent
+        timerBar.BorderSizePixel = 0
+        timerBar.BackgroundTransparency = 0.2
+        timerBar.Parent = contentFrame
+        
+        local bgGradient = Instance.new("UIGradient")
+        bgGradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 30, 35)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 10, 10))
+        }
+        bgGradient.Rotation = 45
+        bgGradient.Parent = card
+        
+        local openTween = TweenService:Create(
+            card,
+            TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+            {Size = UDim2.new(1, 0, 0, 65)}
+        )
+        openTween:Play()
+        
+        local timerTween = TweenService:Create(
+            timerBar,
+            TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+            {Size = UDim2.new(1, 0, 0, 2)}
+        )
+        timerTween:Play()
+        
+        spawn(function()
+            wait(0.3)
+            local shimmer = Instance.new("Frame")
+            shimmer.Size = UDim2.new(0.4, 0, 1.5, 0)
+            shimmer.Position = UDim2.new(-0.5, 0, -0.25, 0)
+            shimmer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            shimmer.BackgroundTransparency = 0.95
+            shimmer.Rotation = 20
+            shimmer.ZIndex = 2
+            shimmer.BorderSizePixel = 0
+            shimmer.Parent = card
+            
+            local shimmerGradient = Instance.new("UIGradient")
+            shimmerGradient.Transparency = NumberSequence.new{
+                NumberSequenceKeypoint.new(0, 1),
+                NumberSequenceKeypoint.new(0.5, 0.5),
+                NumberSequenceKeypoint.new(1, 1)
+            }
+            shimmerGradient.Parent = shimmer
+            
+            local sTween = TweenService:Create(
+                shimmer,
+                TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+                {Position = UDim2.new(1.5, 0, -0.25, 0)}
+            )
+            sTween:Play()
+            Debris:AddItem(shimmer, 1)
+        end)
+        
+        spawn(function()
+            wait(0.6)
+            local countTween = TweenService:Create(
+                timerBar,
+                TweenInfo.new(delayTime, Enum.EasingStyle.Linear),
+                {Size = UDim2.new(0, 0, 0, 2)}
+            )
+            countTween:Play()
+            
+            wait(delayTime)
+            
+            local closeTween = TweenService:Create(
+                card,
+                TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+                {
+                    Size = UDim2.new(1, 0, 0, 0),
+                    BackgroundTransparency = 1
+                }
+            )
+            closeTween:Play()
+            
+            local fadeContents = TweenService:Create(
+                titleLabel,
+                TweenInfo.new(0.2),
+                {TextTransparency = 1}
+            )
+            fadeContents:Play()
+            TweenService:Create(msgLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+            TweenService:Create(stroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
+            
+            closeTween.Completed:Connect(function()
+                card:Destroy()
+            end)
+        end)
+    end
+    
+    spawn(function()
+        spawnNotification(
+            "SYSTEM INITIALIZED", 
+            "Core protocols active. Secure connection established.", 
+            6, 
+            Color3.fromRGB(0, 200, 255)
+        )
+        
+        wait(0.6)
+        
+        spawnNotification(
+            "ADDONS LOADED", 
+            "External modules injected successfully. No errors found.", 
+            5.5, 
+            Color3.fromRGB(0, 255, 120)
+        )
+        
+        wait(0.6)
+        
+        spawnNotification(
+            "WELCOME USER", 
+            "Enjoy the experience. Good luck and have fun.", 
+            5, 
+            Color3.fromRGB(255, 100, 255)
+        )
+        
+        wait(10)
+        if screenGui then screenGui:Destroy() end
+    end)
+end
+
+createModernNotificationSystem()
